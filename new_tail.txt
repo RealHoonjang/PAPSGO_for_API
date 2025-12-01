@@ -1,0 +1,157 @@
+﻿
+    # ?곗씠?곌? ?낅뜲?댄듃?섏뿀?쇰㈃ ?먮룞 ?덈줈怨좎묠
+    if data_updated and total_score > 0:
+        time.sleep(0.2)
+        st.rerun()
+
+with right_col:
+    st.subheader("?뮠 AI 泥대젰 ?곷떞")
+    st.markdown("怨꾩궛湲곗뿉??痢≪젙媛믪쓣 ?낅젰?섍퀬 **'梨쀫큸?쇰줈 寃곌낵 ?꾩넚'** 踰꾪듉???꾨Ⅴ硫?寃곌낵媛 ?먮룞?쇰줈 ?쒖떆?⑸땲??")
+
+    # 怨꾩궛湲곗뿉???꾩넚???곗씠??諛섏쁺
+    if st.session_state.get("calculator_data_received", False):
+        calculator_data = st.session_state.get("pending_calculator_data", {})
+        if calculator_data:
+            user_info = calculator_data.get("userInfo", {})
+            results = calculator_data.get("results", {})
+            for key in st.session_state.user_info.keys():
+                if key in user_info:
+                    st.session_state.user_info[key] = user_info[key]
+            for factor in ["?ы룓吏援щ젰", "?좎뿰??, "洹쇰젰洹쇱?援щ젰", "?쒕컻??, "鍮꾨쭔"]:
+                if factor in results:
+                    factor_data = results[factor]
+                    st.session_state.user_results[factor] = {
+                        "?먯닔": factor_data.get("?먯닔", 0),
+                        "?깃툒": factor_data.get("?깃툒", "-"),
+                        "?됯?醫낅ぉ": factor_data.get("?됯?醫낅ぉ", "")
+                    }
+            st.session_state.total_summary["珥앹젏"] = calculator_data.get("totalScore", 0)
+            st.session_state.total_summary["?깃툒"] = calculator_data.get("totalGrade", "-")
+            st.session_state.calculator_data_received = False
+            st.session_state.pending_calculator_data = {}
+            st.success("??怨꾩궛湲곗뿉??痢≪젙 寃곌낵瑜?遺덈윭?붿뒿?덈떎.")
+
+    total_score = st.session_state.total_summary.get("珥앹젏", 0)
+    total_grade = st.session_state.total_summary.get("?깃툒", "-")
+    user_info = st.session_state.user_info
+    has_results = total_score > 0
+
+    info_col1, info_col2 = st.columns(2)
+    with info_col1:
+        st.metric("珥앹젏", f"{total_score}??)
+    with info_col2:
+        st.metric("?깃툒", total_grade)
+
+    st.markdown("#### ?뱥 泥대젰?붿씤蹂??붿빟 (?먯닔/?깃툒)")
+    summary_rows = []
+    for factor, data in st.session_state.user_results.items():
+        summary_rows.append({
+            "泥대젰?붿씤": factor,
+            "?됯?醫낅ぉ": data.get("?됯?醫낅ぉ") or "-",
+            "?먯닔": data.get("?먯닔", 0),
+            "?깃툒": data.get("?깃툒", "-")
+        })
+    st.table(summary_rows)
+
+    if not has_results:
+        st.info("怨꾩궛湲곗뿉??痢≪젙媛믪쓣 ?낅젰?섍퀬 **'梨쀫큸?쇰줈 寃곌낵 ?꾩넚'** 踰꾪듉???뚮윭二쇱꽭??")
+    else:
+        if st.button("?쨼 痢≪젙 寃곌낵濡??곷떞 ?쒖옉", use_container_width=True):
+            analysis_message = "?덈뀞?섏꽭?? ??PAPS 痢≪젙 寃곌낵瑜?遺꾩꽍?댁＜?몄슂.\n\n"
+            info_str = f"{user_info.get('?숆탳怨쇱젙', '')} {user_info.get('?숇뀈', '')} {user_info.get('?깅퀎', '')}".strip()
+            if info_str:
+                analysis_message += f"**湲곕낯 ?뺣낫:** {info_str}\n"
+            analysis_message += f"**珥앹젏:** {total_score}??n"
+            analysis_message += f"**?깃툒:** {total_grade}\n\n"
+            analysis_message += "**泥대젰?붿씤蹂?痢≪젙 寃곌낵 (?먯닔/?깃툒):**\n"
+            for row in summary_rows:
+                if row["?먯닔"] > 0:
+                    line = f"- {row['泥대젰?붿씤']}: ?먯닔 {row['?먯닔']}?? ?깃툒 {row['?깃툒']}"
+                    if row["?됯?醫낅ぉ"] and row["?됯?醫낅ぉ"] != "-":
+                        line += f", ?됯?醫낅ぉ {row['?됯?醫낅ぉ']}"
+                    analysis_message += line + "\n"
+            analysis_message += "\n泥대젰?붿씤蹂?遺議깊븳 遺遺꾧낵 媛쒖꽑 諛⑹븞???뚮젮二쇱꽭??"
+            st.session_state.messages.append({"role": "user", "content": analysis_message})
+            st.rerun()
+
+    st.markdown("---")
+
+    if st.session_state.chatbot is None:
+        st.error(f"梨쀫큸 珥덇린???ㅽ뙣: {st.session_state.get('chatbot_error', '?????녿뒗 ?ㅻ쪟')}")
+        st.info("""
+        **?닿껐 諛⑸쾿:**
+        1. ?꾨줈?앺듃 猷⑦듃??`.env` ?뚯씪???앹꽦?섏꽭??        2. `.env` ?뚯씪???ㅼ쓬 ?댁슜??異붽??섏꽭??
+           ```
+           API_KEY=your_api_key_here
+           MODEL_NAME=gpt-4o-mini
+           ```
+        3. ?꾩슂??`API_BASE_URL`??異붽??????덉뒿?덈떎
+        """)
+    else:
+        if st.session_state.messages and st.session_state.messages[-1].get("role") == "user" and "PAPS 痢≪젙 寃곌낵瑜?遺꾩꽍?댁＜?몄슂" in st.session_state.messages[-1].get("content", ""):
+            if len(st.session_state.messages) == 1 or st.session_state.messages[-2].get("role") != "assistant":
+                with st.chat_message("user"):
+                    st.markdown(st.session_state.messages[-1]["content"])
+                with st.chat_message("assistant"):
+                    with st.spinner("遺꾩꽍 以?.."):
+                        try:
+                            response = st.session_state.chatbot.get_response(
+                                st.session_state.messages[-1]["content"],
+                                user_results=st.session_state.user_results,
+                                user_info=user_info if any(user_info.values()) else None,
+                                total_summary=st.session_state.total_summary
+                            )
+                            st.markdown(response)
+                            st.session_state.messages.append({"role": "assistant", "content": response})
+                        except Exception as e:
+                            error_msg = f"?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎: {str(e)}"
+                            st.error(error_msg)
+                            st.session_state.messages.append({"role": "assistant", "content": error_msg})
+
+        st.markdown("#### ?뮠 ???湲곕줉")
+        chat_container = st.container()
+        with chat_container:
+            for message in st.session_state.messages:
+                with st.chat_message(message["role"]):
+                    st.markdown(message["content"])
+
+        if prompt := st.chat_input("?앹뒪?????沅곴툑???먯쓣 臾쇱뼱蹂댁꽭??.."):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+            with st.chat_message("assistant"):
+                with st.spinner("?듬????앹꽦?섎뒗 以?.."):
+                    try:
+                        response = st.session_state.chatbot.get_response(
+                            prompt,
+                            user_results=st.session_state.user_results if has_results else None,
+                            user_info=user_info if any(user_info.values()) else None,
+                            total_summary=st.session_state.total_summary if has_results else None
+                        )
+                        st.markdown(response)
+                        st.session_state.messages.append({"role": "assistant", "content": response})
+                    except Exception as e:
+                        error_msg = f"?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎: {str(e)}"
+                        st.error(error_msg)
+                        st.session_state.messages.append({"role": "assistant", "content": error_msg})
+
+        col1, col2 = st.columns([1, 4])
+        with col1:
+            if st.button("?봽 ???珥덇린??, use_container_width=True):
+                st.session_state.messages = []
+                if st.session_state.chatbot:
+                    st.session_state.chatbot.reset_conversation()
+                st.rerun()
+
+        with st.expander("?뮕 ?덉떆 吏덈Ц", expanded=False):
+            example_questions = [
+                "??泥대젰?붿씤 以??대뼡 遺遺꾩씠 遺議깊븳媛??",
+                "?ㅼ쓬 ?깃툒?쇰줈 ?щ씪媛?ㅻ㈃ ?대뼸寃??댁빞 ?섎굹??",
+                "?ы룓吏援щ젰???μ긽?쒗궎??諛⑸쾿???뚮젮二쇱꽭??,
+                "?뺣났?ㅻ옒?щ━湲곕? ?????????덈뒗 ?곸쓣 二쇱꽭??,
+                "?꾩껜?곸쑝濡?泥대젰???μ긽?쒗궎?ㅻ㈃ ?대뼸寃??댁빞 ?섎굹??"
+            ]
+            for question in example_questions:
+                if st.button(f"??{question}", key=f"example_{question}", use_container_width=True):
+                    st.session_state.messages.append({"role": "user", "content": question})
+                    st.rerun()

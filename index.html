@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAPS 평가 계산기</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="./paps_data.js"></script>
+    <script src="./app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <h1>PAPS 평가 계산기</h1>
+            
+            <div class="student-info">
+                <select id="학교과정">
+                    <option value="">학교과정 선택</option>
+                    <option value="초등학교">초등학교</option>
+                    <option value="중학교">중학교</option>
+                    <option value="고등학교">고등학교</option>
+                </select>
+                
+                <select id="학년">
+                    <option value="">학년 선택</option>
+                    <option value="1학년">1학년</option>
+                    <option value="2학년">2학년</option>
+                    <option value="3학년">3학년</option>
+                    <option value="4학년">4학년</option>
+                    <option value="5학년">5학년</option>
+                    <option value="6학년">6학년</option>
+                </select>
+                
+                <select id="성별">
+                    <option value="">성별 선택</option>
+                    <option value="남자">남자</option>
+                    <option value="여자">여자</option>
+                </select>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="papsChart"></canvas>
+            </div>
+
+            <div class="input-container">
+                <div class="input-group" data-factor="심폐지구력">
+                    <h3>심폐지구력</h3>
+                    <select class="평가종목" data-factor="심폐지구력">
+                        <option value="">평가종목 선택</option>
+                        <option value="왕복오래달리기">왕복오래달리기</option>
+                        <option value="스텝검사">스텝검사</option>
+                        <option value="오래달리기-걷기">오래달리기-걷기</option>
+                    </select>
+                    <input type="number" class="기록" data-factor="심폐지구력" placeholder="측정 기록 입력" step="0.1">
+                    <div class="result-display">
+                        <div class="result-item">
+                            <span class="result-label">점수:</span>
+                            <span class="점수">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">등급:</span>
+                            <span class="등급">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group" data-factor="유연성">
+                    <h3>유연성</h3>
+                    <select class="평가종목" data-factor="유연성">
+                        <option value="">평가종목 선택</option>
+                        <option value="앉아윗몸앞으로굽히기">앉아윗몸앞으로굽히기</option>
+                        <option value="종합유연성검사">종합유연성검사</option>
+                    </select>
+                    <input type="number" class="기록" data-factor="유연성" placeholder="측정 기록 입력" step="0.1">
+                    <div class="result-display">
+                        <div class="result-item">
+                            <span class="result-label">점수:</span>
+                            <span class="점수">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">등급:</span>
+                            <span class="등급">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group" data-factor="근력근지구력">
+                    <h3>근력근지구력</h3>
+                    <select class="평가종목" data-factor="근력근지구력">
+                        <option value="">평가종목 선택</option>
+                        <option value="(무릎대고)팔굽혀펴기">(무릎대고)팔굽혀펴기</option>
+                        <option value="윗몸말아올리기">윗몸말아올리기</option>
+                        <option value="악력">악력</option>
+                    </select>
+                    <input type="number" class="기록" data-factor="근력근지구력" placeholder="측정 기록 입력" step="0.1">
+                    <div class="result-display">
+                        <div class="result-item">
+                            <span class="result-label">점수:</span>
+                            <span class="점수">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">등급:</span>
+                            <span class="등급">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group" data-factor="순발력">
+                    <h3>순발력</h3>
+                    <select class="평가종목" data-factor="순발력">
+                        <option value="">평가종목 선택</option>
+                        <option value="50m달리기">50m달리기</option>
+                        <option value="제자리멀리뛰기">제자리멀리뛰기</option>
+                    </select>
+                    <input type="number" class="기록" data-factor="순발력" placeholder="측정 기록 입력" step="0.1">
+                    <div class="result-display">
+                        <div class="result-item">
+                            <span class="result-label">점수:</span>
+                            <span class="점수">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">등급:</span>
+                            <span class="등급">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group" data-factor="비만">
+                    <h3>비만</h3>
+                    <select class="평가종목" data-factor="비만">
+                        <option value="">평가종목 선택</option>
+                        <option value="체질량지수">체질량지수</option>
+                    </select>
+                    <input type="number" class="기록" data-factor="비만" placeholder="측정 기록 입력" step="0.1">
+                    <div class="result-display">
+                        <div class="result-item">
+                            <span class="result-label">점수:</span>
+                            <span class="점수">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">등급:</span>
+                            <span class="등급">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="total-result">
+                <h2>전체 평가 결과</h2>
+                <p>총점: <span id="total-score">-</span></p>
+                <p>등급: <span id="total-grade">-</span></p>
+                <button id="generate-analysis-btn" style="margin-top: 15px; padding: 10px 20px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">📋 상담 분석지 생성</button>
+                
+                <!-- 분석지 표시 영역 -->
+                <div id="analysis-report-container" style="margin-top: 20px; display: none;">
+                    <h3 style="margin-bottom: 10px;">상담 분석지</h3>
+                    <div id="analysis-report" style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; border: 1px solid #ddd; white-space: pre-wrap; font-family: 'Malgun Gothic', sans-serif; line-height: 1.6;"></div>
+                    <button id="copy-analysis-btn" style="margin-top: 10px; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">📋 분석지 복사하기</button>
+                    <p id="copy-feedback" style="margin-top: 10px; color: #4CAF50; font-weight: bold; display: none;">✅ 복사되었습니다! 채팅창에 붙여넣기 하세요.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="guide">
+            <h2>PAPS 안내사항</h2>
+            <ol>
+                <li>PAPS에 대한 측정 결과를 입력하면 등급과 결과를 알려주는 프로그램 입니다.</li>
+                <li>PAPS 등급은 각 종목 당 20점 만점으로 측정을 실시한 5개 종목의 점수를 합산하여 등급을 계산해야 합니다.</li>
+                <li>PAPS 등급의 기준은 다음과 같습니다.
+                    <ul>
+                        <li>1등급: 100-80점</li>
+                        <li>2등급: 79-60점</li>
+                        <li>3등급: 59-40점</li>
+                        <li>4등급: 39-20점</li>
+                        <li>5등급: 19-0점</li>
+                    </ul>
+                </li>
+                <li>PAPS 등급이 4,5등급에 해당하는 학생은 건강 체력 교실에 참여해야합니다.</li>
+            </ol>
+            <p class="encouragement">최선을 다해 PAPS 측정에 참여해주세요!! 여러분을 응원합니다!!!</p>
+            <p class="made-by">Made by 훈장님</p>
+        </div>
+    </div>
+</body>
+</html>
