@@ -2,6 +2,7 @@
 from pathlib import Path
 import re
 import json
+import os
 import streamlit as st
 from streamlit.components.v1 import html as st_html
 import streamlit.components.v1 as components
@@ -671,16 +672,37 @@ with st.container():
     # 챗봇 초기화 확인
     if st.session_state.chatbot is None:
         st.error(f"챗봇 초기화 실패: {st.session_state.get('chatbot_error', '알 수 없는 오류')}")
-        st.info("""
-        **해결 방법:**
-        1. 프로젝트 루트에 `.env` 파일을 생성하세요
-        2. `.env` 파일에 다음 내용을 추가하세요:
-           ```
-           API_KEY=your_api_key_here
-           MODEL_NAME=gpt-4o-mini
-           ```
-        3. 필요시 `API_BASE_URL`도 추가할 수 있습니다
-        """)
+        
+        # Streamlit Cloud 배포인지 확인
+        is_streamlit_cloud = os.getenv("STREAMLIT_SERVER_PORT") is not None or hasattr(st, 'secrets')
+        
+        if is_streamlit_cloud:
+            st.info("""
+            **해결 방법 (Streamlit Cloud 배포):**
+            1. Streamlit Cloud 대시보드에서 앱을 선택하세요
+            2. 좌측 메뉴에서 **"Secrets"** 또는 **"⚙️ Settings" → "Secrets"**를 클릭하세요
+            3. 다음 형식으로 Secrets를 추가하세요:
+               ```toml
+               API_KEY = "your_api_key_here"
+               MODEL_NAME = "gpt-4o-mini"
+               ```
+            4. 필요시 `API_BASE_URL`도 추가할 수 있습니다:
+               ```toml
+               API_BASE_URL = "your_api_base_url"
+               ```
+            5. 저장 후 앱을 재배포하거나 새로고침하세요
+            """)
+        else:
+            st.info("""
+            **해결 방법 (로컬 개발):**
+            1. 프로젝트 루트에 `.env` 파일을 생성하세요
+            2. `.env` 파일에 다음 내용을 추가하세요:
+               ```
+               API_KEY=your_api_key_here
+               MODEL_NAME=gpt-4o-mini
+               ```
+            3. 필요시 `API_BASE_URL`도 추가할 수 있습니다
+            """)
     else:
         
         # 대화 기록 표시

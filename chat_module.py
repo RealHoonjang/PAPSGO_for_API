@@ -9,26 +9,56 @@ from typing import Dict, List, Optional
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# 환경변수 로드 (프로젝트 루트의 .env 파일)
+# Streamlit이 있는지 확인 (Streamlit Cloud 배포 시)
+try:
+    import streamlit as st
+    HAS_STREAMLIT = True
+except ImportError:
+    HAS_STREAMLIT = False
+
+# 환경변수 로드 (프로젝트 루트의 .env 파일) - 로컬 개발용
 root = Path(__file__).parent
 env_path = root / '.env'
-load_dotenv(dotenv_path=env_path)
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path)
 
 class PAPSChatbot:
     """팝스 챗봇 클래스"""
     
     def __init__(self):
         """챗봇 초기화"""
-        # .env 파일 경로 명시적으로 지정하여 다시 로드
-        env_path = Path(__file__).parent / '.env'
-        load_dotenv(dotenv_path=env_path, override=True)
+        # Streamlit Secrets 우선 사용 (Streamlit Cloud 배포 시)
+        if HAS_STREAMLIT:
+            try:
+                # Streamlit Secrets에서 가져오기
+                api_key = st.secrets.get("API_KEY", None)
+                api_base_url = st.secrets.get("API_BASE_URL", None)
+                model_name = st.secrets.get("MODEL_NAME", "gpt-4o-mini")
+            except (AttributeError, KeyError, FileNotFoundError):
+                # Secrets가 없으면 환경변수로 폴백
+                api_key = None
+                api_base_url = None
+                model_name = "gpt-4o-mini"
         
-        api_key = os.getenv("API_KEY")
-        api_base_url = os.getenv("API_BASE_URL")
-        model_name = os.getenv("MODEL_NAME", "gpt-4o-mini")
+        # Streamlit Secrets가 없거나 Streamlit이 없는 경우 환경변수 사용
+        if not api_key:
+            # .env 파일 경로 명시적으로 지정하여 다시 로드
+            env_path = Path(__file__).parent / '.env'
+            if env_path.exists():
+                load_dotenv(dotenv_path=env_path, override=True)
+            
+            api_key = os.getenv("API_KEY")
+            if not api_base_url:
+                api_base_url = os.getenv("API_BASE_URL")
+            if model_name == "gpt-4o-mini":
+                model_name = os.getenv("MODEL_NAME", "gpt-4o-mini")
         
         if not api_key:
-            raise ValueError("API_KEY 환경변수가 설정되지 않았습니다. .env 파일을 확인하세요.")
+            error_msg = "API_KEY가 설정되지 않았습니다. "
+            if HAS_STREAMLIT:
+                error_msg += "Streamlit Cloud에서는 'Secrets' 메뉴에서 API_KEY를 설정하거나, "
+            error_msg += "로컬 개발 시 .env 파일을 확인하세요."
+            raise ValueError(error_msg)
         
         # OpenAI 클라이언트 초기화
         client_kwargs = {"api_key": api_key}
